@@ -17,8 +17,8 @@ interface DashboardPreviewProps {
 }
 
 const DashboardPreview = ({
-  title = "Don't imagine it — see it.",
-  subtitle = "Preview our intuitive dashboard that puts AI-powered business growth at your fingertips.",
+  title = "Your AI Command Center",
+  subtitle = "See everything in one place — live leads, conversations, bookings, reviews, and real-time performance insights.",
 }: DashboardPreviewProps) => {
   return (
     <section className="w-full py-16 px-4 md:px-8 bg-slate-50">

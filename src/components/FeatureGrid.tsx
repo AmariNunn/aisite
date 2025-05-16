@@ -22,6 +22,8 @@ interface FeatureCardProps {
   description: string;
   icon: React.ReactNode;
   isNew?: boolean;
+  comingSoon?: boolean;
+  details?: string[];
 }
 
 const FeatureCard = ({
@@ -29,20 +31,30 @@ const FeatureCard = ({
   description,
   icon,
   isNew = false,
+  comingSoon = false,
+  details = [],
 }: FeatureCardProps) => {
   return (
     <Card className="h-full bg-white border border-gray-200 hover:shadow-md transition-shadow duration-300">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="p-2 bg-blue-100 rounded-md">{icon}</div>
-          {isNew && <Badge className="bg-blue-600">New</Badge>}
+          {isNew && <Badge className="bg-blue-600">Beta</Badge>}
+          {comingSoon && <Badge className="bg-amber-600">Coming Soon</Badge>}
         </div>
         <CardTitle className="text-xl font-bold mt-4">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <CardDescription className="text-gray-600">
+        <CardDescription className="text-gray-600 mb-4">
           {description}
         </CardDescription>
+        {details.length > 0 && (
+          <ul className="list-disc pl-5 space-y-1 text-sm text-gray-600">
+            {details.map((detail, idx) => (
+              <li key={idx}>{detail}</li>
+            ))}
+          </ul>
+        )}
       </CardContent>
     </Card>
   );

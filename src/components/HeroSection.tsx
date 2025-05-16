@@ -11,7 +11,7 @@ interface HeroSectionProps {
 }
 
 const HeroSection = ({
-  headline = "Smarter Systems. Faster Growth. Zero Extra Staff.",
+  headline = "Automate Growth. Eliminate Overhead. Outperform the Competition.",
   subheadline = "We install AI-powered infrastructure that answers calls, captures leads, closes deals, and builds your business 24/7.",
   trustIndicators = [
     "Med Spas",
@@ -38,7 +38,6 @@ const HeroSection = ({
         <div className="absolute top-20 -right-20 w-64 h-64 bg-blue-100 rounded-full opacity-30 blur-3xl"></div>
         <div className="absolute bottom-10 -left-20 w-80 h-80 bg-blue-100 rounded-full opacity-30 blur-3xl"></div>
       </div>
-
       <div className="container mx-auto max-w-6xl z-10">
         <div className="text-center mb-12">
           <motion.h1
@@ -83,29 +82,28 @@ const HeroSection = ({
             </Button>
           </motion.div>
         </div>
-
         {/* Trust indicators */}
-        <motion.div
-          className="text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-        >
-          <div className="text-sm text-gray-500 mb-3">
-            Trusted by businesses in:
-          </div>
-          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-            {trustIndicators.map((indicator, index) => (
-              <div key={index} className="text-gray-600 font-medium">
-                {index > 0 && (
-                  <span className="hidden md:inline mx-2 text-gray-300">•</span>
-                )}
-                {indicator}
-              </div>
-            ))}
-          </div>
-        </motion.div>
       </div>
+      <motion.div
+        className="text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.6 }}
+      >
+        <div className="text-sm text-gray-500 mb-3">
+          Powering growth in high-leverage industries:
+        </div>
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+          {trustIndicators.map((indicator, index) => (
+            <div key={index} className="text-gray-600 font-medium">
+              {index > 0 && (
+                <span className="hidden md:inline mx-2 text-gray-300">•</span>
+              )}
+              {indicator}
+            </div>
+          ))}
+        </div>
+      </motion.div>
     </section>
   );
 };

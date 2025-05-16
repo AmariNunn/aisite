@@ -3,16 +3,38 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { useNavigate } from "react-router-dom";
+import { createClient } from "@supabase/supabase-js";
+import { Database } from "../types/supabase";
+import { Checkbox } from "./ui/checkbox";
+import { Label } from "./ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+
+const supabase = createClient<Database>(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY,
+);
 
 const DemoForm = () => {
   const navigate = useNavigate();
   const [formState, setFormState] = React.useState({
-    name: "",
+    agent_type: "",
+    business_info: "",
+    call_volume: "",
     email: "",
-    company: "",
-    phone: "",
-    message: "",
     submitted: false,
+  });
+
+  const [desiredOutcomes, setDesiredOutcomes] = React.useState({
+    "More bookings": false,
+    "Lead follow-up": false,
+    Qualification: false,
+    "Full replacement": false,
   });
 
   const handleChange = (
@@ -22,16 +44,49 @@ const DemoForm = () => {
     setFormState((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // In a real app, you would send this data to your backend
-    console.log("Form submitted:", formState);
-    setFormState((prev) => ({ ...prev, submitted: true }));
+  const handleSelectChange = (name: string, value: string) => {
+    setFormState((prev) => ({ ...prev, [name]: value }));
+  };
 
-    // Show success message for 2 seconds then redirect back to home
-    setTimeout(() => {
-      navigate("/");
-    }, 2000);
+  const handleCheckboxChange = (outcome: string, checked: boolean) => {
+    setDesiredOutcomes((prev) => ({
+      ...prev,
+      [outcome]: checked,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Combine selected outcomes into a single string
+    const selectedOutcomes = Object.entries(desiredOutcomes)
+      .filter(([_, selected]) => selected)
+      .map(([outcome]) => outcome)
+      .join(", ");
+
+    try {
+      // Submit to Supabase
+      const { error } = await supabase.from("form_submissions").insert({
+        agent_type: formState.agent_type,
+        business_info: formState.business_info,
+        call_volume: formState.call_volume,
+        desired_outcomes: selectedOutcomes,
+        email: formState.email,
+      });
+
+      if (error) throw error;
+
+      // Show success message
+      setFormState((prev) => ({ ...prev, submitted: true }));
+
+      // Show success message for 2 seconds then redirect back to home
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("There was an error submitting your request. Please try again.");
+    }
   };
 
   if (formState.submitted) {
@@ -78,77 +133,104 @@ const DemoForm = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium">
-                  Full Name
-                </label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={formState.name}
-                  onChange={handleChange}
-                  required
-                  placeholder="John Smith"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">
-                  Email Address
-                </label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formState.email}
-                  onChange={handleChange}
-                  required
-                  placeholder="john@example.com"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="company" className="text-sm font-medium">
-                  Company Name
-                </label>
-                <Input
-                  id="company"
-                  name="company"
-                  value={formState.company}
-                  onChange={handleChange}
-                  required
-                  placeholder="Your Company"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="phone" className="text-sm font-medium">
-                  Phone Number
-                </label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  value={formState.phone}
-                  onChange={handleChange}
-                  required
-                  placeholder="(123) 456-7890"
-                />
-              </div>
+            {/* Agent Type */}
+            <div className="space-y-2">
+              <Label htmlFor="agent_type">
+                What type of agent are you looking for?
+              </Label>
+              <Select
+                onValueChange={(value) =>
+                  handleSelectChange("agent_type", value)
+                }
+                required
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select agent type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Inbound">Inbound</SelectItem>
+                  <SelectItem value="Outbound">Outbound</SelectItem>
+                  <SelectItem value="Both">Both</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
+            {/* Business Info */}
             <div className="space-y-2">
-              <label htmlFor="message" className="text-sm font-medium">
-                Additional Information
-              </label>
+              <Label htmlFor="business_info">Tell us about your business</Label>
               <Textarea
-                id="message"
-                name="message"
-                value={formState.message}
+                id="business_info"
+                name="business_info"
+                value={formState.business_info}
                 onChange={handleChange}
                 placeholder="Tell us about your business needs..."
                 className="min-h-[120px]"
+                required
+              />
+            </div>
+
+            {/* Call Volume */}
+            <div className="space-y-2">
+              <Label htmlFor="call_volume">
+                How many calls do you expect per month?
+              </Label>
+              <Select
+                onValueChange={(value) =>
+                  handleSelectChange("call_volume", value)
+                }
+                required
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select call volume" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Under 100">Under 100</SelectItem>
+                  <SelectItem value="100–500">100–500</SelectItem>
+                  <SelectItem value="500–1000">500–1000</SelectItem>
+                  <SelectItem value="1000+">1000+</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Desired Outcomes */}
+            <div className="space-y-3">
+              <Label>What outcome matters most to you?</Label>
+              <div className="space-y-2">
+                {Object.keys(desiredOutcomes).map((outcome) => (
+                  <div key={outcome} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`outcome-${outcome}`}
+                      checked={
+                        desiredOutcomes[outcome as keyof typeof desiredOutcomes]
+                      }
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(outcome, checked === true)
+                      }
+                    />
+                    <Label
+                      htmlFor={`outcome-${outcome}`}
+                      className="cursor-pointer"
+                    >
+                      {outcome}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Email */}
+            <div className="space-y-2">
+              <Label htmlFor="email">
+                What's the best email to follow up with?
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formState.email}
+                onChange={handleChange}
+                required
+                placeholder="you@example.com"
               />
             </div>
 
