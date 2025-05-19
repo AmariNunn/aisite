@@ -28,7 +28,7 @@ const HeroSection = ({
   };
 
   const handleSeeInAction = () => {
-    navigate("/demo-video");
+    navigate("/admin/calls");
   };
 
   return (
